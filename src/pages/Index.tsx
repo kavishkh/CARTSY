@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import Marquee from "@/components/Marquee";
 import ProductGrid from "@/components/ProductGrid";
+import AboutSection from "@/components/AboutSection";
 import EditorialFooter from "@/components/EditorialFooter";
 
 const Index = () => {
@@ -28,6 +29,7 @@ const Index = () => {
       <Hero />
       <Marquee />
       <ProductGrid />
+      <AboutSection />
       <EditorialFooter />
     </div>
   );
