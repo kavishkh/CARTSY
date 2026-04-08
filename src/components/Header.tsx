@@ -21,7 +21,7 @@ const Header = () => {
           <MagneticButton
             className="font-display text-lg tracking-tight font-bold text-foreground"
           >
-            CART$Y
+            Cartsy
           </MagneticButton>
         </Link>
 

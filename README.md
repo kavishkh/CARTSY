@@ -1,3 +1,3 @@
-# Editorial Luxe
+# Cartsy
 
 TODO: Document your project here

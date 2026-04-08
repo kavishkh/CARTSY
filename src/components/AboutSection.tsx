@@ -21,7 +21,7 @@ const AboutSection = () => {
 
           <ScrollReveal delay={0.15}>
             <p className="font-mono text-sm text-muted-foreground leading-relaxed mb-6">
-            CART$Y was born from a rejection of disposable fashion. Every piece in our collection 
+            Cartsy was born from a rejection of disposable fashion. Every piece in our collection 
               exists because it solves a problem — not because a trend demanded it.
             </p>
           </ScrollReveal>

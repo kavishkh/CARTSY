@@ -27,7 +27,7 @@ const FullScreenMenu = ({ onClose }: FullScreenMenuProps) => {
       className="fixed inset-0 z-[60] bg-background flex flex-col"
     >
       <div className="flex items-center justify-between px-6 md:px-10 py-4">
-        <Link to="/" onClick={onClose} className="font-display text-lg font-bold text-foreground">CART$Y</Link>
+        <Link to="/" onClick={onClose} className="font-display text-lg font-bold text-foreground">Cartsy</Link>
         <MagneticButton onClick={onClose} className="text-foreground hover:text-accent transition-colors">
           <X size={24} strokeWidth={1.5} />
         </MagneticButton>
