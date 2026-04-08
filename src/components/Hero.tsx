@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import heroImage from "@/assets/hero-editorial.jpg";
 import MagneticButton from "./MagneticButton";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
@@ -63,11 +64,14 @@ const Hero = () => {
           transition={{ duration: 0.6, delay: 0.9 }}
           className="mt-8"
         >
-          <MagneticButton className="bg-accent text-accent-foreground px-8 py-3 font-mono text-xs uppercase tracking-widest hover:opacity-90 transition-opacity">
-            Explore Collection
-          </MagneticButton>
+          <Link to="/collection">
+            <MagneticButton className="bg-accent text-accent-foreground px-8 py-3 font-mono text-xs uppercase tracking-widest hover:opacity-90 transition-opacity">
+              Explore Collection
+            </MagneticButton>
+          </Link>
         </motion.div>
       </div>
+
 
       <motion.div
         initial={{ opacity: 0 }}

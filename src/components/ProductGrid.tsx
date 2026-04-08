@@ -1,20 +1,9 @@
 import ScrollReveal from "./ScrollReveal";
 import ProductCard from "./ProductCard";
-import product1 from "@/assets/product-1.jpg";
-import product2 from "@/assets/product-2.jpg";
-import product3 from "@/assets/product-3.jpg";
-import product4 from "@/assets/product-4.jpg";
-import product5 from "@/assets/product-5.jpg";
-import product6 from "@/assets/product-6.jpg";
-
-const products = [
-  { image: product1, name: "Oversized Hoodie", price: "€120", category: "Tops" },
-  { image: product2, name: "Essential Tee", price: "€55", category: "Basics" },
-  { image: product3, name: "Cargo Pants", price: "€145", category: "Bottoms" },
-  { image: product4, name: "Crossbody Bag", price: "€95", category: "Accessories" },
-  { image: product5, name: "Ribbed Beanie", price: "€35", category: "Accessories" },
-  { image: product6, name: "Crewneck Sweat", price: "€110", category: "Tops" },
-];
+import { products } from "@/lib/products";
+import { Link } from "react-router-dom";
+import MagneticButton from "./MagneticButton";
+import { ArrowRight } from "lucide-react";
 
 const ProductGrid = () => {
   return (
@@ -63,8 +52,19 @@ const ProductGrid = () => {
           <ProductCard {...products[5]} tall />
         </ScrollReveal>
       </div>
+
+      <ScrollReveal className="mt-20 flex justify-center">
+        <Link to="/collection">
+          <MagneticButton className="group flex items-center space-x-4 border border-border px-8 py-4 hover:bg-foreground hover:text-background transition-colors duration-500">
+            <span className="font-mono text-[10px] uppercase tracking-widest">Explore Full Collection</span>
+            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+          </MagneticButton>
+        </Link>
+      </ScrollReveal>
     </section>
   );
 };
 
 export default ProductGrid;
+
+

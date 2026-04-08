@@ -4,6 +4,8 @@ import { ShoppingBag, Search } from "lucide-react";
 import MagneticButton from "./MagneticButton";
 import FullScreenMenu from "./FullScreenMenu";
 
+import { Link } from "react-router-dom";
+
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -15,18 +17,25 @@ const Header = () => {
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="fixed top-0 left-0 right-0 z-50 px-6 md:px-10 py-4 flex items-center justify-between backdrop-blur-xl bg-background/60 border-b border-border/50"
       >
-        <MagneticButton
-          className="font-display text-lg tracking-tight font-bold text-foreground"
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        >
-          FRXSH
-        </MagneticButton>
+        <Link to="/">
+          <MagneticButton
+            className="font-display text-lg tracking-tight font-bold text-foreground"
+          >
+            CART$Y
+          </MagneticButton>
+        </Link>
 
         <nav className="hidden md:flex items-center gap-8 font-mono text-xs uppercase tracking-widest text-muted-foreground">
-          {["Collection", "About", "Journal"].map((item) => (
+          <Link
+            to="/collection"
+            className="relative cursor-pointer hover:text-foreground transition-colors duration-300"
+          >
+            Collection
+          </Link>
+          {["About", "Journal"].map((item) => (
             <motion.a
               key={item}
-              href={`#${item.toLowerCase()}`}
+              href={`/#${item.toLowerCase()}`}
               className="relative cursor-pointer hover:text-foreground transition-colors duration-300"
               whileHover={{ y: -2 }}
             >
@@ -34,6 +43,7 @@ const Header = () => {
             </motion.a>
           ))}
         </nav>
+
 
         <div className="flex items-center gap-4">
           <MagneticButton className="text-foreground hover:text-accent transition-colors">

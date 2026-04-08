@@ -58,13 +58,13 @@ const EditorialFooter = () => {
         {/* Giant brand name */}
         <ScrollReveal>
           <h2 className="font-display text-[15vw] md:text-[12vw] font-bold text-foreground leading-[0.85] -tracking-[0.04em] select-none">
-            FRXSH
+            CART$Y
           </h2>
         </ScrollReveal>
 
         <div className="flex items-center justify-between mt-8 pt-6 border-t border-border">
           <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-            © 2026 Frxsh. All rights reserved.
+            © 2026 Cart$y. All rights reserved.
           </span>
           <span className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
             Designed with precision

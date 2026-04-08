@@ -1,3 +1,3 @@
-# Welcome to your Lovable project
+# Editorial Luxe
 
 TODO: Document your project here
