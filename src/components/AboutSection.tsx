@@ -35,13 +35,13 @@ const AboutSection = () => {
           </ScrollReveal>
 
           <ScrollReveal delay={0.3}>
-            <div className="grid grid-cols-3 gap-8 border-t border-border pt-8">
+            <div className="flex flex-wrap gap-8 border-t border-border pt-8">
               {[
                 { number: "47", label: "Pieces" },
                 { number: "03", label: "Countries" },
                 { number: "∞", label: "Wears" },
               ].map((stat) => (
-                <div key={stat.label}>
+                <div key={stat.label} className="min-w-[60px]">
                   <span className="font-display text-3xl md:text-4xl font-bold text-foreground">
                     {stat.number}
                   </span>

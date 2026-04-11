@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, ChevronRight, Minus, Plus, ShoppingBag } from "lucide-react";
@@ -7,7 +7,7 @@ import Header from "@/components/Header";
 import EditorialFooter from "@/components/EditorialFooter";
 import MagneticButton from "@/components/MagneticButton";
 import ProductCard from "@/components/ProductCard";
-import { products, Product } from "@/lib/products";
+import { products, Product, fetchProductById } from "@/lib/products";
 import {
   Accordion,
   AccordionContent,
@@ -15,20 +15,28 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { toast } from "sonner";
+import { useCart } from "@/context/CartContext";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
+  const navigate = useNavigate();
+
+  const { data: product, isLoading } = useQuery({
+    queryKey: ['product', id],
+    queryFn: () => fetchProductById(id as string),
+    enabled: !!id,
+  });
 
   useEffect(() => {
-    const foundProduct = products.find((p) => p.id === id);
-    if (foundProduct) {
-      setProduct(foundProduct);
-      setSelectedImage(foundProduct.image);
+    if (product) {
+      setSelectedImage(product.image);
     }
-  }, [id]);
+  }, [product]);
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -47,10 +55,47 @@ const ProductDetail = () => {
     return () => lenis.destroy();
   }, [id]);
 
-  if (!product) return null;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="animate-spin text-accent" size={32} />
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+       <div className="min-h-screen bg-background flex flex-col items-center justify-center pt-32">
+         <Header />
+         <p className="font-mono text-sm uppercase tracking-widest text-muted-foreground mb-8 text-center px-6">The architectural piece you seek does not exist.</p>
+         <Link to="/collection">
+           <MagneticButton className="bg-foreground text-background px-12 py-5 font-mono text-[10px] uppercase tracking-[0.3em]">
+             Return to Collection
+           </MagneticButton>
+         </Link>
+       </div>
+    );
+  }
 
   const handleAddToCart = () => {
-    toast.success(`Added ${quantity} ${product.name} to cart`);
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: quantity
+    });
+  };
+
+  const handleBuyNow = () => {
+    addToCart({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: quantity
+    });
+    navigate("/cart");
   };
 
   const relatedProducts = products.filter((p) => p.id !== id).slice(0, 3);
@@ -70,12 +115,12 @@ const ProductDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-24">
           {/* Image Gallery */}
           <div className="lg:col-span-7 flex flex-col md:flex-row gap-6">
-            <div className="flex md:flex-col gap-4 order-2 md:order-1">
+            <div className="flex flex-row md:flex-col gap-4 order-2 md:order-1 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
               {product.images.map((img, index) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImage(img)}
-                  className={`w-20 aspect-square overflow-hidden bg-secondary transition-opacity ${
+                  className={`w-16 sm:w-20 aspect-square overflow-hidden bg-secondary transition-opacity flex-shrink-0 ${
                     selectedImage === img ? "opacity-100" : "opacity-40"
                   }`}
                 >
@@ -132,15 +177,26 @@ const ProductDetail = () => {
                   </div>
                 </div>
 
-                <MagneticButton 
-                  onClick={handleAddToCart}
-                  className="w-full bg-foreground text-background py-6 flex items-center justify-center space-x-3 group overflow-hidden"
-                >
-                   <ShoppingBag size={18} className="group-hover:-translate-y-1 transition-transform" />
-                   <span className="font-mono text-sm uppercase tracking-widest">
-                    Add to Bag
-                  </span>
-                </MagneticButton>
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <MagneticButton 
+                    onClick={handleBuyNow}
+                    className="flex-1 bg-accent text-accent-foreground py-6 flex items-center justify-center space-x-3 group overflow-hidden"
+                  >
+                    <span className="font-mono text-sm uppercase tracking-widest font-bold">
+                      Buy Now
+                    </span>
+                  </MagneticButton>
+
+                  <MagneticButton 
+                    onClick={handleAddToCart}
+                    className="flex-1 bg-foreground text-background py-6 flex items-center justify-center space-x-3 group overflow-hidden border border-foreground hover:bg-transparent hover:text-foreground transition-all duration-300"
+                  >
+                     <ShoppingBag size={18} className="group-hover:-translate-y-1 transition-transform" />
+                     <span className="font-mono text-sm uppercase tracking-widest">
+                      Add to Bag
+                    </span>
+                  </MagneticButton>
+                </div>
 
               </div>
 
@@ -166,7 +222,7 @@ const ProductDetail = () => {
                     Shipping & Returns
                   </AccordionTrigger>
                   <AccordionContent className="text-sm text-muted-foreground pb-6 leading-relaxed">
-                    Complimentary express shipping on all orders over €200. Returns accepted within 14 days of delivery.
+                    Complimentary express shipping on all orders over ₹15,000. Returns accepted within 14 days of delivery.
                   </AccordionContent>
                 </AccordionItem>
               </Accordion>

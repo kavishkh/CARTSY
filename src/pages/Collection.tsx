@@ -5,10 +5,12 @@ import Header from "@/components/Header";
 import EditorialFooter from "@/components/EditorialFooter";
 import ProductCard from "@/components/ProductCard";
 import ScrollReveal from "@/components/ScrollReveal";
-import { products } from "@/lib/products";
-import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import { products, fetchProducts } from "@/lib/products";
+import { ChevronDown, SlidersHorizontal, X, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
-const categories = ["All", "Tops", "Basics", "Bottoms", "Accessories"];
+const departments = ["All", "Men", "Women", "Shoes"];
+const categories = ["All", "Tops", "Basics", "Bottoms", "Accessories", "Dresses", "Outerwear"];
 const sortOptions = [
   { label: "Newest First", value: "newest" },
   { label: "Price: Low to High", value: "price-low" },
@@ -16,9 +18,15 @@ const sortOptions = [
 ];
 
 const Collection = () => {
+  const [selectedDept, setSelectedDept] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+
+  const { data: allProducts = [], isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+  });
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -37,11 +45,22 @@ const Collection = () => {
     return () => lenis.destroy();
   }, []);
 
-  const filteredProducts = products
-    .filter((p) => (selectedCategory === "All" ? true : p.category === selectedCategory))
+  const filteredProducts = allProducts
+    .filter((p) => {
+      // Department filtering logic
+      let deptMatch = true;
+      if (selectedDept === "Men") deptMatch = p.gender === "men";
+      else if (selectedDept === "Women") deptMatch = p.gender === "women";
+      else if (selectedDept === "Shoes") deptMatch = p.category === "Shoes";
+
+      // Category filtering logic
+      const categoryMatch = selectedCategory === "All" ? true : p.category === selectedCategory;
+      
+      return deptMatch && categoryMatch;
+    })
     .sort((a, b) => {
-      const priceA = parseInt(a.price.replace("€", ""));
-      const priceB = parseInt(b.price.replace("€", ""));
+      const priceA = parseInt(a.price.replace(/[₹,]/g, ""));
+      const priceB = parseInt(b.price.replace(/[₹,]/g, ""));
       if (sortBy === "price-low") return priceA - priceB;
       if (sortBy === "price-high") return priceB - priceA;
       return 0; // Default: as defined in data
@@ -56,11 +75,9 @@ const Collection = () => {
         <section className="px-6 md:px-16 mb-24">
           <ScrollReveal>
             <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent mb-4">
-              Explore OurCatalog
+              Explore Our Catalog
             </p>
-            <h1 className="font-display text-5xl md:text-8xl font-bold mb-8 leading-[0.9]">
-              The Full
-              <br />
+            <h1 className="font-display text-5xl md:text-8xl font-bold mb-8 leading-[0.9] uppercase tracking-tighter">
               Collection
             </h1>
             <p className="max-w-md font-mono text-xs text-muted-foreground leading-relaxed">
@@ -69,97 +86,67 @@ const Collection = () => {
           </ScrollReveal>
         </section>
 
-        {/* Filters/Sort Bar */}
-        <section className="px-6 md:px-16 mb-16 border-y border-border py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          {/* Categories Desktop */}
-          <div className="hidden md:flex items-center gap-8">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`font-mono text-[10px] uppercase tracking-widest transition-colors relative pb-1 ${
-                  selectedCategory === cat ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {cat}
-                {selectedCategory === cat && (
-                  <motion.div
-                    layoutId="categoryLine"
-                    className="absolute bottom-0 left-0 right-0 h-px bg-accent"
-                  />
-                )}
-              </button>
-            ))}
+        {/* Filters Bar */}
+        <section className="px-6 md:px-16 mb-16 border-y border-border py-8 space-y-8">
+          {/* Departments */}
+          <div className="flex flex-col md:flex-row md:items-center gap-6 md:gap-12">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground whitespace-nowrap">Department:</span>
+            <div className="flex flex-wrap items-center gap-6">
+              {departments.map((dept) => (
+                <button
+                  key={dept}
+                  onClick={() => setSelectedDept(dept)}
+                  className={`font-mono text-[10px] uppercase tracking-widest transition-colors relative pb-1 ${
+                    selectedDept === dept ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {dept}
+                  {selectedDept === dept && (
+                    <motion.div layoutId="deptLine" className="absolute bottom-0 left-0 right-0 h-px bg-accent" />
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Filters Mobile Trigger */}
-          <button 
-            className="md:hidden flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest"
-            onClick={() => setIsFilterOpen(!isFilterOpen)}
-          >
-            <SlidersHorizontal size={14} />
-            Filters {selectedCategory !== "All" && `(${selectedCategory})`}
-          </button>
+          <div className="h-px bg-border/50 w-full" />
 
-          {/* Sort Dropdown */}
-          <div className="flex items-center gap-4">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Sort By:</span>
-            <select 
-              value={sortBy} 
-              onChange={(e) => setSortBy(e.target.value)}
-              className="bg-transparent font-mono text-[10px] uppercase tracking-widest text-foreground outline-none cursor-pointer focus:text-accent transition-colors"
-            >
-              {sortOptions.map((opt) => (
-                <option key={opt.value} value={opt.value} className="bg-background">{opt.label}</option>
-              ))}
-            </select>
+          {/* Categories & Sort */}
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+            <div className="flex flex-wrap items-center gap-6">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Category:</span>
+              <div className="flex flex-wrap items-center gap-6">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`font-mono text-[10px] uppercase tracking-widest transition-colors relative pb-1 ${
+                      selectedCategory === cat ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {cat}
+                    {selectedCategory === cat && (
+                      <motion.div layoutId="categoryLine" className="absolute bottom-0 left-0 right-0 h-px bg-accent" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <span className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">Sort By:</span>
+              <select 
+                value={sortBy} 
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-transparent font-mono text-[10px] uppercase tracking-widest text-foreground outline-none cursor-pointer focus:text-accent transition-colors"
+              >
+                {sortOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value} className="bg-background">{opt.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </section>
-
-        {/* Mobile Filters Side Panel */}
-        <AnimatePresence>
-          {isFilterOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[70] bg-background/80 backdrop-blur-sm md:hidden"
-                onClick={() => setIsFilterOpen(false)}
-              />
-              <motion.div
-                initial={{ x: "100%" }}
-                animate={{ x: 0 }}
-                exit={{ x: "100%" }}
-                transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                className="fixed top-0 right-0 bottom-0 z-[80] w-[80%] bg-background border-l border-border p-8 md:hidden shadow-2xl"
-              >
-                <div className="flex items-center justify-between mb-12">
-                  <h2 className="font-display text-2xl font-bold uppercase tracking-tight">Category</h2>
-                  <button onClick={() => setIsFilterOpen(false)} className="text-foreground">
-                    <X size={24} strokeWidth={1.5} />
-                  </button>
-                </div>
-                <div className="flex flex-col gap-8">
-                  {categories.map((cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => {
-                        setSelectedCategory(cat);
-                        setIsFilterOpen(false);
-                      }}
-                      className={`text-left font-mono text-xs uppercase tracking-[0.2em] transition-all ${
-                        selectedCategory === cat ? "text-accent text-lg" : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {cat}
-                    </button>
-                  ))}
-                </div>
-              </motion.div>
-            </>
-          )}
-        </AnimatePresence>
 
         {/* Product Grid */}
         <section className="px-6 md:px-16 min-h-[400px]">
@@ -175,7 +162,10 @@ const Collection = () => {
             <div className="flex flex-col items-center justify-center py-32 text-center">
               <p className="font-mono text-sm text-muted-foreground mb-4 uppercase tracking-widest">No pieces found</p>
               <button 
-                onClick={() => setSelectedCategory("All")}
+                onClick={() => {
+                  setSelectedCategory("All");
+                  setSelectedDept("All");
+                }}
                 className="font-mono text-[10px] uppercase tracking-widest text-accent border-b border-accent"
               >
                 Reset Filters

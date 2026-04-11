@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import MagneticButton from "./MagneticButton";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FullScreenMenuProps {
   onClose: () => void;
@@ -8,7 +10,7 @@ interface FullScreenMenuProps {
 
 import { Link } from "react-router-dom";
 
-const menuItems = [
+const initialMenuItems = [
   { label: "Collection", to: "/collection" },
   { label: "About", to: "/#about" },
   { label: "Journal", to: "/#journal" },
@@ -18,6 +20,24 @@ const menuItems = [
 const socials = ["Instagram", "Twitter", "TikTok"];
 
 const FullScreenMenu = ({ onClose }: FullScreenMenuProps) => {
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const menuItems = [
+    ...initialMenuItems,
+    user ? { label: "Profile", to: "/profile" } : { label: "Login", to: "/login" }
+  ];
   return (
     <motion.div
       initial={{ opacity: 0 }}

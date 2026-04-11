@@ -1,11 +1,28 @@
 import ScrollReveal from "./ScrollReveal";
 import ProductCard from "./ProductCard";
-import { products } from "@/lib/products";
+import { products, fetchProducts } from "@/lib/products";
 import { Link } from "react-router-dom";
 import MagneticButton from "./MagneticButton";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 const ProductGrid = () => {
+  const { data: allProducts = [], isLoading } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchProducts,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="py-32 flex justify-center">
+        <Loader2 className="animate-spin text-accent" size={32} />
+      </div>
+    );
+  }
+
+  // Use the fetched products or fall back to empty to avoid indexing errors
+  const safeProducts = allProducts.length >= 6 ? allProducts : products;
+
   return (
     <section id="collection" className="px-6 md:px-16 py-24 md:py-32">
       <ScrollReveal>
@@ -30,26 +47,26 @@ const ProductGrid = () => {
       <div className="grid grid-cols-2 md:grid-cols-12 gap-4 md:gap-6">
         {/* Row 1: large + small */}
         <ScrollReveal className="col-span-2 md:col-span-7" delay={0}>
-          <ProductCard {...products[0]} tall />
+          <ProductCard {...safeProducts[0]} tall />
         </ScrollReveal>
         <ScrollReveal className="col-span-1 md:col-span-5 md:mt-24" delay={0.15}>
-          <ProductCard {...products[1]} />
+          <ProductCard {...safeProducts[1]} />
         </ScrollReveal>
 
         {/* Row 2: small + large */}
         <ScrollReveal className="col-span-1 md:col-span-4" delay={0.1}>
-          <ProductCard {...products[2]} tall />
+          <ProductCard {...safeProducts[2]} tall />
         </ScrollReveal>
         <ScrollReveal className="col-span-1 md:col-span-4 md:mt-16" delay={0.2}>
-          <ProductCard {...products[3]} />
+          <ProductCard {...safeProducts[3]} />
         </ScrollReveal>
         <ScrollReveal className="col-span-2 md:col-span-4" delay={0.3}>
-          <ProductCard {...products[4]} />
+          <ProductCard {...safeProducts[4]} />
         </ScrollReveal>
 
         {/* Row 3: full width feature */}
         <ScrollReveal className="col-span-2 md:col-span-6 md:col-start-4" delay={0.1}>
-          <ProductCard {...products[5]} tall />
+          <ProductCard {...safeProducts[5]} tall />
         </ScrollReveal>
       </div>
 
