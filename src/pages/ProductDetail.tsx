@@ -95,7 +95,7 @@ const ProductDetail = () => {
       image: product.image,
       quantity: quantity
     });
-    navigate("/cart");
+    navigate("/checkout");
   };
 
   const relatedProducts = products.filter((p) => p.id !== id).slice(0, 3);

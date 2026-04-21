@@ -1,4 +1,3 @@
--- Step 1: Create the products table
 CREATE TABLE IF NOT EXISTS products (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -9,6 +8,7 @@ CREATE TABLE IF NOT EXISTS products (
     details TEXT[],
     image TEXT NOT NULL,
     images TEXT[],
+    vendor_id UUID REFERENCES auth.users(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -33,6 +33,15 @@ CREATE INDEX IF NOT EXISTS idx_products_gender ON products(gender);
 -- Step 5: Create policies for products
 CREATE POLICY "Allow public read access" ON products
     FOR SELECT USING (true);
+
+CREATE POLICY "Vendors can insert their own products" ON products
+    FOR INSERT WITH CHECK (auth.uid() = vendor_id);
+
+CREATE POLICY "Vendors can update their own products" ON products
+    FOR UPDATE USING (auth.uid() = vendor_id);
+
+CREATE POLICY "Vendors can delete their own products" ON products
+    FOR DELETE USING (auth.uid() = vendor_id);
 
 -- Step 6: Create policies for profiles
 CREATE POLICY "Users can view their own profile" ON profiles

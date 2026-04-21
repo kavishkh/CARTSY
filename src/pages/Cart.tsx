@@ -37,57 +37,19 @@ const Cart = () => {
   };
 
   const handleCheckout = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    
-    if (!session) {
-      toast.error("Authentication Required", {
-        description: "Please sign in to complete your purchase.",
-      });
-      navigate("/login");
-      return;
-    }
-
     setIsProcessing(true);
-
     try {
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: session.user.id,
-          total_amount: total,
-          status: 'completed'
-        })
-        .select()
-        .single();
-
-      if (orderError) throw orderError;
-
-      const orderItems = cart.map(item => ({
-        order_id: order.id,
-        product_id: item.id,
-        quantity: item.quantity,
-        price_at_time: item.price,
-        size: item.size || 'default'
-      }));
-
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
-
-      if (itemsError) throw itemsError;
-
-      await clearCart();
+      const { data: { session } } = await supabase.auth.getSession();
       
-      toast.success("Order Successful", {
-        description: "Your architectural selection has been archived. Check your profile for details.",
-      });
-      
-      navigate("/profile");
-    } catch (error: any) {
-      console.error("Checkout Error:", error);
-      toast.error("Checkout Failed", {
-        description: error.message || "An unexpected error occurred."
-      });
+      if (!session) {
+        toast.error("Authentication Required", {
+          description: "Please sign in to complete your purchase.",
+        });
+        navigate("/login");
+        return;
+      }
+
+      navigate("/checkout");
     } finally {
       setIsProcessing(false);
     }
@@ -269,7 +231,7 @@ const Cart = () => {
                     className="w-full bg-accent text-accent-foreground py-6 flex items-center justify-center gap-3 group overflow-hidden transition-all hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(var(--accent),0.3)] disabled:opacity-50"
                   >
                     <span className="font-mono text-sm uppercase tracking-[0.3em] font-bold">
-                      {isProcessing ? "Processing Vault" : "Buy Now"}
+                      Buy Now
                     </span>
                     <ShoppingBag size={18} className="group-hover:-translate-y-1 transition-transform duration-500" />
                   </button>
@@ -280,7 +242,7 @@ const Cart = () => {
                     className="w-full bg-foreground text-background py-6 flex items-center justify-center gap-3 group overflow-hidden border border-foreground hover:bg-transparent hover:text-foreground transition-all disabled:opacity-50"
                   >
                     <span className="font-mono text-sm uppercase tracking-[0.3em]">
-                      {isProcessing ? "Authenticating..." : "Standard Checkout"}
+                      Standard Checkout
                     </span>
                     <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform duration-500" />
                   </button>
